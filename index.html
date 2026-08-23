@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Английский плетением + Прогресс</title>
+    <!-- Подключаем манифест для PWA -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Цвет темы для браузера (опционально) -->
+    <meta name="theme-color" content="#3b82f6">
+    <style>
+        /* (ваш существующий CSS без изменений) */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 16px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .app {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            padding: 24px 20px 32px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a2634;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .sub {
+            color: #6c7a8a;
+            font-size: 14px;
+            margin-bottom: 16px;
+            border-left: 3px solid #3b82f6;
+            padding-left: 12px;
+        }
+        .stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 18px;
+            background: #f0f4fe;
+            padding: 10px 16px;
+            border-radius: 40px;
+            margin-bottom: 16px;
+            font-weight: 500;
+            font-size: 14px;
+            color: #1e293b;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border 0.2s;
+            background: #fafcfd;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+        }
+        .controls {
+            margin: 18px 0 14px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px 20px;
+        }
+        .density-group {
+            flex: 2;
+            min-width: 140px;
+        }
+        .density-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2d3a4a;
+            display: flex;
+            justify-content: space-between;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-top: 6px;
+            -webkit-appearance: none;
+            background: #dde3ed;
+            height: 6px;
+            border-radius: 4px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(59,130,246,0.3);
+        }
+        .stat {
+            background: #eef2f7;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e293b;
+            white-space: nowrap;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 16px;
+            background: #3b82f6;
+            color: white;
+            flex: 1;
+            min-width: 100px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.25);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active { transform: scale(0.96); }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+            box-shadow: none;
+        }
+        .btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            box-shadow: none;
+            flex: 0.5;
+            min-width: 70px;
+        }
+        .output-wrap {
+            margin-top: 20px;
+            border-top: 2px solid #eef2f7;
+            padding-top: 16px;
+        }
+        .output-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3a4a;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        #result {
+            background: #fafcfd;
+            border-radius: 16px;
+            padding: 16px 18px;
+            min-height: 120px;
+            font-size: 16px;
+            line-height: 1.8;
+            border: 1px solid #e2e8f0;
+            color: #0b1a2a;
+            word-break: break-word;
+        }
+        .en-word {
+            color: #1d4ed8;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px dashed #93b4f0;
+            padding: 0 4px;
+            border-radius: 6px;
+            transition: background 0.15s;
+            position: relative;
+            display: inline-block;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .en-word:active {
+            background: #dbeafe;
+        }
+        .en-word.learned {
+            color: #15803d;
+            border-bottom-color: #22c55e;
+            background: #dcfce7;
+        }
+        .tooltip {
+            display: none;
+            position: absolute;
+            background: #1e293b;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 400;
+            white-space: nowrap;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .en-word:active .tooltip {
+            display: block;
+        }
+        .footer {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #8a9aaa;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <h1>📖 Учим слова в контексте</h1>
+    <div class="sub">Вставь текст → читай → кликай по словам (озвучка + запоминание)</div>
+
+    <div class="stats-row">
+        <span id="statCount">⚡ 0 замен</span>
+        <span id="learnedCount">📚 0 выучено</span>
+    </div>
+
+    <textarea id="inputText" placeholder="Вставьте сюда текст книги, статьи или любого материала на русском языке...">Однажды тёмным вечером маленький мальчик вышел во двор. Он хотел увидеть звёзды, но небо было облачным. Тогда он решил зажечь фонарик и посветить вверх. К его удивлению, свет пробил тучи, и он увидел яркую звезду. Мальчик улыбнулся и понял, что даже маленький свет может победить тьму.</textarea>
+
+    <div class="controls">
+        <div class="density-group">
+            <label>
+                <span>Плотность замены</span>
+                <span id="densityValue">15%</span>
+            </label>
+            <input type="range" id="densitySlider" min="0" max="80" value="15">
+        </div>
+        <div class="stat" id="wordCount">📄 0 слов</div>
+    </div>
+
+    <div class="actions">
+        <button class="btn" id="transformBtn">🔄 Преобразовать</button>
+        <button class="btn btn-secondary" id="resetBtn">↺ Сброс текста</button>
+        <button class="btn btn-danger" id="clearProgressBtn">🗑️ Сброс прогресса</button>
+    </div>
+
+    <div class="output-wrap">
+        <div class="output-label">
+            <span>Результат</span>
+        </div>
+        <div id="result">Нажмите «Преобразовать».</div>
+    </div>
+    <div class="footer">Кликни по слову → 🔊 произнесёт + отметит как выученное (зелёный)</div>
+</div>
+
+<script>
+    // ---------------------- СЛОВАРЬ ----------------------
+    const dictionary = {
+        "один": "one", "два": "two", "три": "three", "четыре": "four", "пять": "five",
+        "шесть": "six", "семь": "seven", "восемь": "eight", "девять": "nine", "десять": "ten",
+        "большой": "big", "маленький": "small", "высокий": "tall", "низкий": "low",
+        "хороший": "good", "плохой": "bad", "новый": "new", "старый": "old",
+        "молодой": "young", "красивый": "beautiful", "умный": "smart", "сильный": "strong",
+        "слабый": "weak", "быстрый": "fast", "медленный": "slow",
+        "дом": "house", "квартира": "apartment", "комната": "room", "дверь": "door",
+        "окно": "window", "стол": "table", "стул": "chair", "кровать": "bed",
+        "книга": "book", "ручка": "pen", "карандаш": "pencil", "бумага": "paper",
+        "город": "city", "деревня": "village", "улица": "street", "площадь": "square",
+        "парк": "park", "сад": "garden", "река": "river", "море": "sea", "океан": "ocean",
+        "гора": "mountain", "лес": "forest", "поле": "field", "небо": "sky",
+        "солнце": "sun", "луна": "moon", "звезда": "star", "свет": "light",
+        "темнота": "darkness", "день": "day", "ночь": "night", "утро": "morning",
+        "вечер": "evening", "человек": "man", "женщина": "woman", "ребёнок": "child",
+        "мальчик": "boy", "девочка": "girl", "друг": "friend", "враг": "enemy",
+        "работа": "work", "учёба": "study", "отдых": "rest", "еда": "food", "вода": "water",
+        "огонь": "fire", "воздух": "air", "земля": "earth", "жизнь": "life", "смерть": "death",
+        "любовь": "love", "ненависть": "hate", "счастье": "happiness", "горе": "grief",
+        "думать": "think", "знать": "know", "понимать": "understand", "видеть": "see",
+        "слышать": "hear", "чувствовать": "feel", "хотеть": "want", "мочь": "can",
+        "делать": "do", "идти": "go", "стоять": "stand", "сидеть": "sit", "лежать": "lie",
+        "бежать": "run", "плыть": "swim", "лететь": "fly", "ехать": "drive",
+        "говорить": "speak", "читать": "read", "писать": "write", "рисовать": "draw",
+        "играть": "play", "работать": "work", "учиться": "study", "отдыхать": "rest",
+        "есть": "eat", "пить": "drink", "спать": "sleep", "просыпаться": "wake up",
+        "жить": "live", "умереть": "die", "родиться": "born"
+    };
+    const rusWords = Object.keys(dictionary);
+
+    // ---------------------- DOM ----------------------
+    const inputText = document.getElementById('inputText');
+    const densitySlider = document.getElementById('densitySlider');
+    const densityValue = document.getElementById('densityValue');
+    const transformBtn = document.getElementById('transformBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const clearProgressBtn = document.getElementById('clearProgressBtn');
+    const resultDiv = document.getElementById('result');
+    const statCount = document.getElementById('statCount');
+    const wordCountSpan = document.getElementById('wordCount');
+    const learnedCountSpan = document.getElementById('learnedCount');
+
+    // ---------------------- Хранилище (LocalStorage) ----------------------
+    const STORAGE_KEY = 'reader_app_data';
+
+    function loadState() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch { return null; }
+    }
+
+    function saveState(text, density, learned) {
+        const data = {
+            text: text,
+            density: density,
+            learned: Array.from(learned)
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    // Инициализация состояния
+    let learnedSet = new Set();
+    const saved = loadState();
+    if (saved) {
+        inputText.value = saved.text || '';
+        densitySlider.value = saved.density || 15;
+        if (saved.learned) learnedSet = new Set(saved.learned);
+    } else {
+        densitySlider.value = 15;
+    }
+
+    // ---------------------- Вспомогательные функции ----------------------
+    function getWords(text) {
+        const regex = /([а-яёА-ЯЁa-zA-Z0-9]+)|([^а-яёА-ЯЁa-zA-Z0-9]+)/g;
+        const parts = [];
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+            if (match[1]) parts.push({ type: 'word', text: match[1] });
+            else if (match[2]) parts.push({ type: 'sep', text: match[2] });
+        }
+        return parts;
+    }
+
+    function replaceWords(text, densityPercent, learned) {
+        const parts = getWords(text);
+        const wordIndices = [];
+        parts.forEach((part, idx) => {
+            if (part.type === 'word' && dictionary.hasOwnProperty(part.text.toLowerCase())) {
+                wordIndices.push(idx);
+            }
+        });
+        const totalCandidates = wordIndices.length;
+        let replaceCount = Math.floor(totalCandidates * (densityPercent / 100));
+        const shuffled = [...wordIndices];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        const selectedIndices = shuffled.slice(0, replaceCount);
+
+        const newParts = parts.map((part, idx) => {
+            if (selectedIndices.includes(idx)) {
+                const rus = part.text.toLowerCase();
+                const en = dictionary[rus];
+                let displayEn = en;
+                if (part.text[0] === part.text[0].toUpperCase() && part.text.length > 0) {
+                    displayEn = en.charAt(0).toUpperCase() + en.slice(1);
+                }
+                if (part.text === part.text.toUpperCase()) {
+                    displayEn = en.toUpperCase();
+                }
+                const isLearned = learned.has(rus);
+                return {
+                    type: 'en',
+                    text: displayEn,
+                    rus: rus,
+                    original: part.text,
+                    learned: isLearned
+                };
+            } else {
+                return part;
+            }
+        });
+
+        let html = '';
+        let replacedCount = 0;
+        newParts.forEach(part => {
+            if (part.type === 'sep') {
+                html += part.text;
+            } else if (part.type === 'word') {
+                html += part.text;
+            } else if (part.type === 'en') {
+                replacedCount++;
+                const learnedClass = part.learned ? 'learned' : '';
+                html += `<span class="en-word ${learnedClass}" data-rus="${part.rus}" data-en="${part.text}">${part.text}<span class="tooltip">${part.rus}</span></span>`;
+            }
+        });
+
+        return { html, replacedCount, totalWords: parts.filter(p => p.type === 'word').length };
+    }
+
+    // ---------------------- Озвучка (TTS) ----------------------
+    function speakWord(word) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // ---------------------- Обновление UI ----------------------
+    function updateDensityLabel() {
+        densityValue.textContent = densitySlider.value + '%';
+    }
+
+    function updateStats(replaced, total, learnedCount) {
+        statCount.textContent = `⚡ ${replaced} замен`;
+        wordCountSpan.textContent = `📄 ${total} слов`;
+        learnedCountSpan.textContent = `📚 ${learnedCount} выучено`;
+    }
+
+    function processText() {
+        const text = inputText.value.trim();
+        if (!text) {
+            resultDiv.innerHTML = '⚠️ Введите текст для преобразования.';
+            updateStats(0, 0, learnedSet.size);
+            return;
+        }
+        const density = parseInt(densitySlider.value);
+        const { html, replacedCount, totalWords } = replaceWords(text, density, learnedSet);
+        resultDiv.innerHTML = html;
+        updateStats(replacedCount, totalWords, learnedSet.size);
+        saveState(text, density, learnedSet);
+    }
+
+    function resetText() {
+        inputText.value = '';
+        resultDiv.innerHTML = 'Нажмите «Преобразовать».';
+        updateStats(0, 0, learnedSet.size);
+        saveState('', parseInt(densitySlider.value), learnedSet);
+    }
+
+    function clearProgress() {
+        if (confirm('Удалить всю историю выученных слов?')) {
+            learnedSet.clear();
+            saveState(inputText.value.trim(), parseInt(densitySlider.value), learnedSet);
+            processText();
+        }
+    }
+
+    // ---------------------- Обработчик клика по словам (делегирование) ----------------------
+    resultDiv.addEventListener('click', function(e) {
+        const target = e.target.closest('.en-word');
+        if (!target) return;
+        const rus = target.dataset.rus;
+        const en = target.dataset.en;
+        if (!rus || !en) return;
+        speakWord(en);
+        if (!learnedSet.has(rus)) {
+            learnedSet.add(rus);
+            target.classList.add('learned');
+            learnedCountSpan.textContent = `📚 ${learnedSet.size} выучено`;
+            saveState(inputText.value.trim(), parseInt(densitySlider.value), learnedSet);
+        }
+    });
+
+    // ---------------------- Обработчики событий ----------------------
+    densitySlider.addEventListener('input', () => {
+        updateDensityLabel();
+        saveState(inputText.value.trim(), parseInt(densitySlider.value), learnedSet);
+    });
+
+    inputText.addEventListener('input', () => {
+        saveState(inputText.value.trim(), parseInt(densitySlider.value), learnedSet);
+    });
+
+    transformBtn.addEventListener('click', processText);
+    resetBtn.addEventListener('click', resetText);
+    clearProgressBtn.addEventListener('click', clearProgress);
+
+    // ---------------------- Инициализация при загрузке ----------------------
+    document.addEventListener('DOMContentLoaded', () => {
+        updateDensityLabel();
+        densityValue.textContent = densitySlider.value + '%';
+        processText();
+        if (!inputText.value.trim() && !saved) {
+            processText();
+        }
+    });
+
+    // ---------------------- РЕГИСТРАЦИЯ SERVICE WORKER (добавлено) ----------------------
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+            .then(() => console.log('Service Worker зарегистрирован'))
+            .catch(err => console.log('Ошибка регистрации SW:', err));
+    }
+</script>
+</body>
+</html>
